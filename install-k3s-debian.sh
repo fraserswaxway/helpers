@@ -12,7 +12,7 @@ tar -xvf cni-plugins-linux-amd64-*.tgz -C /opt/cni/bin/
 curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash -
 curl -sfL https://get.k3s.io | sh -
 SECONDS_LEFT=45
-while [ $SECONDS_LEFT -gt 0 ]; do
+while [ $SECONDS_LEFT -ge 0 ]; do
     printf "\rShort pause: %02d" "$SECONDS_LEFT"
     sleep 1
     SECONDS_LEFT=$((SECONDS_LEFT - 1))
@@ -25,7 +25,7 @@ KUBECONFIG=/etc/rancher/k3s/k3s.yaml \
   --set expose.ingress.hosts.core=$(hostname -f | tr '[:upper:]' '[:lower:]') \
   --set externalURL=https://$(hostname -f | tr '[:upper:]' '[:lower:]')
 SECONDS_LEFT=45
-while [ $SECONDS_LEFT -gt 0 ]; do
+while [ $SECONDS_LEFT -ge 0 ]; do
     printf "\rShort pause: %02d" "$SECONDS_LEFT"
     sleep 1
     SECONDS_LEFT=$((SECONDS_LEFT - 1))
