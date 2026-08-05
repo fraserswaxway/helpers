@@ -1,5 +1,7 @@
 #!/bin/bash
 # curl -L https://raw.githubusercontent.com/fraserswaxway/helpers/refs/heads/main/install-mssql-debian.sh | bash
+#
+
 rm -rf /opt/sqlserver
 mkdir -p /opt/sqlserver/var/opt/mssql
 chmod -R 777 /opt/sqlserver
