@@ -11,13 +11,16 @@ help=false
 interactive=false
 password=pzzwrd
 port=1521
+operation=create
+shopt -s nocasematch
 
 echo -e "\n...Initializing\n"
 
 command_help () {
   info
-  echo -e "\nUsage: $command [-i] [-h] [-n <name>] [-d <directory>]"
+  echo -e "\nUsage: $command [-m] [-i <image>] [-h] [-n <name>] [-d <directory>]"
   echo -e " -m menu mode"
+  echo -e " -o create|remove operation (create is default)"
   echo -e " -i image name"
   echo -e " -d directory"
   echo -e " -n container name"
@@ -28,7 +31,8 @@ command_help () {
 }
 
 info () {
-  echo -e "\nCurrent configuration"
+  echo -e "\n=====> Current configuration: "
+  echo -e "...operation=$operation"
   echo -e "...directory=$directory"
   echo -e "...name=$name"
   echo -e "...port=$port"
@@ -46,10 +50,13 @@ leave () {
 }
 
 
-while getopts "mhin:d:p:" opt; do
+while getopts "mhin:d:p:o:" opt; do
   case $opt in
     d)
       directory=$OPTARG
+      ;;
+    o)
+      operation=$OPTARG
       ;;
     p)
       port=$OPTARG
@@ -131,6 +138,12 @@ if [ -z "$name" ]; then
   help=true
 fi
 
+if [ -z "$operation" ]; then
+  echo -e "...[E] Invalid operation specified"
+  help=true
+fi
+
+
 if [ "$help" == "true" ]; then
   info
   leave 1
@@ -140,16 +153,22 @@ echo -e "\n...Deploying\n"
 
 info
 
+echo -e "\n"
+
 rm -rf $directory
 mkdir -p $directory/oradata
 mkdir -p $directory/tablespace
 chmod -R 777 $directory
 
-docker run --name $name --hostname $name \
-  -p $port:1521 \
-  -e ORACLE_PWD=$password \
-  -v $directory/oradata:/opt/oracle/oradata \
-  -v $directory/tablespace:/opt/oracle/tablespace \
-  -dit $image
+echo -e "\n"
+
+if [ "${operation:0:1}" == "c" ]; then
+  docker run --name $name --hostname $name \
+    -p $port:1521 \
+    -e ORACLE_PWD=$password \
+    -v $directory/oradata:/opt/oracle/oradata \
+    -v $directory/tablespace:/opt/oracle/tablespace \
+    -dit $image
+fi
 
 leave 0
