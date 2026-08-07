@@ -31,7 +31,9 @@ command_help () {
   echo -e " -h optional display this helpful message"
   echo -e "\nExamples:"
   echo -e "  -i"
-  echo -e "  -n oracle -d /tmp/oracle\n"
+  echo -e "  -n oracle -d /tmp/oracle"
+  echo -e "  -n sentinel -o create -d /tmp/oracle -p 11521"
+  echo -e "\n"
 }
 
 info () {
