@@ -3,6 +3,11 @@
 # curl -L https://raw.githubusercontent.com/fraserswaxway/helpers/refs/heads/main/install-oracle-debian.sh | bash -s -- -h
 # bash <(curl -L https://raw.githubusercontent.com/fraserswaxway/helpers/refs/heads/main/install-oracle-debian.sh) -m
 
+if [ "$EUID" -ne 0 ]; then
+  echo "Please run as root"
+  exit 1
+fi
+
 image=container-registry.oracle.com/database/free:latest-lite
 directory=~/oracle
 name=oracle
