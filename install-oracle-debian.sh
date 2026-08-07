@@ -4,7 +4,7 @@
 # bash <(curl -L https://raw.githubusercontent.com/fraserswaxway/helpers/refs/heads/main/install-oracle-debian.sh) -m
 
 if [ "$EUID" -ne 0 ]; then
-  echo "Please run as root"
+  echo -e "\n\nPlease run as root\n"
   exit 1
 fi
 
