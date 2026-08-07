@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# bash <(curl -L https://raw.githubusercontent.com/fraserswaxway/helpers/refs/heads/main/sentinel/install-sentine-oracle-debian.sh)
+# bash <(curl -L https://raw.githubusercontent.com/fraserswaxway/helpers/refs/heads/main/sentinel/install-sentinel-oracle-debian.sh)
 
 if [ "$EUID" -e 0 ]; then
   echo -e "\n\nPlease NOT run as root\n"
