@@ -170,22 +170,22 @@ echo -e "\n"
 
 if [ "${operation:0:1}" == "r" ]; then
   echo -e "\n...Remove\n"
-  docker stop oracle
-  docker rm -f oracle
+  docker stop $name
+  docker rm -f $name
   docker rmi -f container-registry.oracle.com/database/free:latest-lite
-  rm -rf $directory
+  rm -rf $directory/$name
 fi
 
 if [ "${operation:0:1}" == "c" ]; then
   echo -e "\n...Create\n"
-  mkdir -p $directory/oradata
-  mkdir -p $directory/tablespace
+  mkdir -p $directory/$name/oradata
+  mkdir -p $directory/$name/tablespace
   chmod -R 777 $directory
   docker run --name $name --hostname $name \
     -p $port:1521 \
     -e ORACLE_PWD=$password \
-    -v $directory/oradata:/opt/oracle/oradata \
-    -v $directory/tablespace:/opt/oracle/tablespace \
+    -v $directory/$name/oradata:/opt/oracle/oradata \
+    -v $directory/$name/tablespace:/opt/oracle/tablespace \
     -dit $image
 fi
 
