@@ -165,26 +165,25 @@ info
 
 echo -e "\n"
 
-rm -rf $directory
-mkdir -p $directory/oradata
-mkdir -p $directory/tablespace
-chmod -R 777 $directory
+if [ "${operation:0:1}" == "r" ]; then
+  docker stop oracle
+  docker rm -f oracle
+  docker rmi -f container-registry.oracle.com/database/free:latest-lite
+  rm -rf $directory
+fi
 
 echo -e "\n"
 
 if [ "${operation:0:1}" == "c" ]; then
+  mkdir -p $directory/oradata
+  mkdir -p $directory/tablespace
+  chmod -R 777 $directory
   docker run --name $name --hostname $name \
     -p $port:1521 \
     -e ORACLE_PWD=$password \
     -v $directory/oradata:/opt/oracle/oradata \
     -v $directory/tablespace:/opt/oracle/tablespace \
     -dit $image
-fi
-
-if [ "${operation:0:1}" == "r" ]; then
-  docker stop oracle
-  docker rm -f oracle
-  docker rmi -f container-registry.oracle.com/database/free:latest-lite
 fi
 
 leave 0
