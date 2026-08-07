@@ -159,22 +159,20 @@ if [ "$help" == "true" ]; then
   leave 1
 fi
 
-echo -e "\n...Deploying\n"
-
 info
 
 echo -e "\n"
 
 if [ "${operation:0:1}" == "r" ]; then
+  echo -e "\n...Remove\n"
   docker stop oracle
   docker rm -f oracle
   docker rmi -f container-registry.oracle.com/database/free:latest-lite
   rm -rf $directory
 fi
 
-echo -e "\n"
-
 if [ "${operation:0:1}" == "c" ]; then
+  echo -e "\n...Create\n"
   mkdir -p $directory/oradata
   mkdir -p $directory/tablespace
   chmod -R 777 $directory
