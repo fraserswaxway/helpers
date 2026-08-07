@@ -27,6 +27,7 @@ info () {
   echo -e "...directory=$directory"
   echo -e "...name=$name"
   echo -e "...port=$port"
+  echo -e "\n"
 }
 
 leave () {
@@ -36,10 +37,13 @@ leave () {
 
 
 
-while getopts "hin:b:f:t:" opt; do
+while getopts "hin:d:p:" opt; do
   case $opt in
     d)
       directory=$OPTARG
+      ;;
+    p)
+      port=$OPTARG
       ;;
     n)
       name=$OPTARG
@@ -61,58 +65,38 @@ if [ "$help" == "true" ]; then
   leave
 fi
 
-# ===========================================================
-#if ! (grep -q "mftops-dev" $profile_file && grep -q "mftops-test" $profile_file && grep -q "mftops-prod" $profile_file); then
-#  error_profiles
-#fi while [[ $count -lt 5 && $status == "active" ]]; do
-# ===========================================================
 response=help
 while $interactive
 do
-  echo ""
+  info
   echo "=====> Menu: "
-  echo " l list folder contents recursively"
-  echo " s show bucket contents recursively"
-  echo " u upload $file to folder (NOTE: local copy $file created then remove after upload)"
-  echo " d download $file from folder (NOTE: local copy of $file is removed after download)"
-  echo " g get an existing file (NOTES: a) at least one file must be found in the foloder b) local copy is removed after download)"
-  echo " r remove $file from folder"
-  echo " q|x quit or exit"
+  echo " n set name"
+  echo " p set port"
+  echo " d set directory"
+  echo " r resume"
   read -p "Selection: " response
 
   case ${response:0:1} in
-    x|q)
-	  exit 0
-      ;;
-    l)
-      echo -e "\n...Here is a recursive listing of the folder"
-      run "aws --profile mftops-$level s3 ls s3://$bucket/$folder/ --recursive $nocerts"
-      ;;
     r)
-      echo -e "\n...Removing $file from folder"
-      run "aws --profile mftops-$level s3 rm s3://$bucket/$folder/$file $nocerts"
+	  break
+      ;;
+    p)
+      read -p "Port [$port]: " value
+      if [ ! -z "$value" ]; then
+        port=$value
+      fi
+      ;;
+    d)
+      read -p "Directory [$directory]: " value
+      if [ ! -z "$value" ]; then
+        directory=$value
+      fi
       ;;
     n)
-      if [ -z "$nocerts" ]; then
-        nocerts=--no-verify
-      else
-       nocerts=
-      fi
-	  ;;
-    f)
-      read -p "Folder [$folder]): " value
+      read -p "Name [$name]: " value
       if [ ! -z "$value" ]; then
-        folder=$value
+        name=$value
       fi
-      ;;
-    b)
-      read -p "Bucket [$bucket]: " value
-      if [ ! -z "$value" ]; then
-        bucket=$value
-      fi
-      ;;
-    h)
-      echo -e "\n...Environment=[$level] Bucket=[$bucket] Folder=[$folder] Trace=[$debug] NoVerify=[$nocerts]"
       ;;
     *)
       echo -e "\n...[E] Invalid request"
@@ -132,13 +116,13 @@ if [ -z "$name" ]; then
 fi
 
 if [ "$help" == "true" ]; then
-  command_help
+  info
   leave
 fi
 
-info
+echo -e "\n...Deploying\n"
 
-# leave
+info
 
 rm -rf $directory
 mkdir -p $directory/oradata
