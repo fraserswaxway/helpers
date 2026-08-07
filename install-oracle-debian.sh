@@ -1,7 +1,4 @@
 #!/bin/bash
-# curl -L https://raw.githubusercontent.com/fraserswaxway/helpers/refs/heads/main/install-oracle-debian.sh | bash
-# curl -L https://raw.githubusercontent.com/fraserswaxway/helpers/refs/heads/main/install-oracle-debian.sh | bash -s -- -h
-# bash <(curl -L https://raw.githubusercontent.com/fraserswaxway/helpers/refs/heads/main/install-oracle-debian.sh) -m
 
 if [ "$EUID" -ne 0 ]; then
   echo -e "\n\nPlease run as root\n"
@@ -22,7 +19,7 @@ echo -e "\n...Initializing\n"
 
 command_help () {
   info
-  echo -e "\nUsage: [-m] [-i <image>] [-h] [-n <name>] [-d <directory>]"
+  echo -e "\nUsage: [-m] [-i <image>] [-h] [-n <name>] [-d <directory>] [-c <credential>]"
   echo -e " -m menu mode"
   echo -e " -o create|remove operation (create is default)"
   echo -e " -i image name"
@@ -58,8 +55,11 @@ leave () {
 }
 
 
-while getopts "mhin:d:p:o:" opt; do
+while getopts "mhin:d:p:o:c:" opt; do
   case $opt in
+    c)
+      password=$OPTARG
+      ;;
     d)
       directory=$OPTARG
       ;;
@@ -99,6 +99,7 @@ do
   echo -e "\n=====> Menu: "
   echo " n set name"
   echo " o set operation"
+  echo " c set credential (password)"
   echo " p set port"
   echo " d set directory"
   echo " r resume"
@@ -111,6 +112,12 @@ do
       ;;
     r)
 	  break
+      ;;
+    c)
+      read -p "Credential (password) [$password]: " value
+      if [ ! -z "$value" ]; then
+        password=$value
+      fi
       ;;
     p)
       read -p "Port [$port]: " value
@@ -155,6 +162,11 @@ fi
 
 if [ -z "$operation" ]; then
   echo -e "...[E] Invalid operation specified"
+  help=true
+fi
+
+if [ -z "$password" ]; then
+  echo -e "...[E] Invalid password specified"
   help=true
 fi
 
