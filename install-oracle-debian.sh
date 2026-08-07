@@ -4,8 +4,7 @@
 # bash <(curl -L https://raw.githubusercontent.com/fraserswaxway/helpers/refs/heads/main/install-oracle-debian.sh) -m
 
 image=container-registry.oracle.com/database/free:latest-lite
-command=$0
-directory=/opt/oracle
+directory=~/oracle
 name=oracle
 help=false
 interactive=false
@@ -18,7 +17,7 @@ echo -e "\n...Initializing\n"
 
 command_help () {
   info
-  echo -e "\nUsage: $command [-m] [-i <image>] [-h] [-n <name>] [-d <directory>]"
+  echo -e "\nUsage: [-m] [-i <image>] [-h] [-n <name>] [-d <directory>]"
   echo -e " -m menu mode"
   echo -e " -o create|remove operation (create is default)"
   echo -e " -i image name"
@@ -26,8 +25,8 @@ command_help () {
   echo -e " -n container name"
   echo -e " -h optional display this helpful message"
   echo -e "\nExamples:"
-  echo -e "  $command -i"
-  echo -e "  $command -n database -d /tmp/oracle\n"
+  echo -e "  -i"
+  echo -e "  -n oracle -d /tmp/oracle\n"
 }
 
 info () {
