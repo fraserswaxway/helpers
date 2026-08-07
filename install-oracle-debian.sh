@@ -89,7 +89,7 @@ do
   info
   echo -e "\n=====> Menu: "
   echo " n set name"
-  echo " p set operation"
+  echo " o set operation"
   echo " p set port"
   echo " d set directory"
   echo " r resume"
