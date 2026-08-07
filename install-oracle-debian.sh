@@ -2,6 +2,7 @@
 # curl -L https://raw.githubusercontent.com/fraserswaxway/helpers/refs/heads/main/install-oracle-debian.sh | bash
 # curl -L https://raw.githubusercontent.com/fraserswaxway/helpers/refs/heads/main/install-oracle-debian.sh | bash -s -- -h
 
+image=container-registry.oracle.com/database/free:latest-lite
 command=$0
 directory=/opt/oracle
 name=oracle
@@ -32,8 +33,13 @@ info () {
 }
 
 leave () {
+ local result=$1
+  if [ -z "$result" ]; then
+    echo -e "\n...[E] Missing result value for leave"
+  fi
+
   echo -e "\n...Exit\n"
-  exit 1
+  exit $result
 }
 
 
@@ -63,7 +69,7 @@ done
 
 if [ "$help" == "true" ]; then
   command_help
-  leave
+  leave 1
 fi
 
 response=help
@@ -118,7 +124,7 @@ fi
 
 if [ "$help" == "true" ]; then
   info
-  leave
+  leave 1
 fi
 
 echo -e "\n...Deploying\n"
@@ -135,6 +141,6 @@ docker run --name $name --hostname $name \
   -e ORACLE_PWD=$password \
   -v $directory/oradata:/opt/oracle/oradata \
   -v $directory/tablespace:/opt/oracle/tablespace \
-  -dit container-registry.oracle.com/database/free:latest-lite
+  -dit $image
 
-leave
+leave 0
