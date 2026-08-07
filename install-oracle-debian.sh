@@ -120,6 +120,12 @@ do
         name=$value
       fi
       ;;
+    o)
+      read -p "Operation [$operation]: " value
+      if [ ! -z "$value" ]; then
+        operation=$value
+      fi
+      ;;
     *)
       echo -e "\n...[E] Invalid request"
 	  ;;
@@ -142,6 +148,10 @@ if [ -z "$operation" ]; then
   help=true
 fi
 
+if [[ ! "$operation" == [cr]* ]]; then
+  echo -e "...[E] Invalid operation specified"
+  help=true
+fi
 
 if [ "$help" == "true" ]; then
   info
@@ -168,6 +178,12 @@ if [ "${operation:0:1}" == "c" ]; then
     -v $directory/oradata:/opt/oracle/oradata \
     -v $directory/tablespace:/opt/oracle/tablespace \
     -dit $image
+fi
+
+if [ "${operation:0:1}" == "r" ]; then
+  docker stop oracle
+  docker rm -f oracle
+  docker rmi -f container-registry.oracle.com/database/free:latest-lite
 fi
 
 leave 0
