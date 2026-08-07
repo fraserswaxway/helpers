@@ -1,37 +1,46 @@
 #!/bin/bash
 # curl -L https://raw.githubusercontent.com/fraserswaxway/helpers/refs/heads/main/install-oracle-debian.sh | bash
-#
+# curl -L https://raw.githubusercontent.com/fraserswaxway/helpers/refs/heads/main/install-oracle-debian.sh | bash -s -- -h
 
 directory=/opt/oracle
 name=oracle
 help=false
 interactive=false
-
-
+password=pzzwrd
+port=1521
 
 echo -e "\n...Initializing\n"
 
 command_help () {
-  echo -e "\nUsage: $command [-i] [-h]"
+  echo -e "\nUsage: $command [-i] [-h] [-n <name>] [-d <directory>]"
   echo -e " -i interactive mode"
+  echo -e " -d directory"
+  echo -e " -n container name"
   echo -e " -h optional display this helpful message"
-  echo -e "..."
-  echo -e " -f required folder (folder/subfolder)"
-  echo -e " -n toggle on no-verify"
-  echo -e " -t optional trace (Default is none)"
   echo -e "\nExamples:"
-  echo -e "  $command -f zelis/ready_for_cebit -e nonprod -b silverton-maa-us-gov-id-card-test -t trace"
-  echo -e "  $command -e prod -b usmg-esi-prod-elgibility-data-eah -f ESI1500/outgoing -n\n"
+  echo -e "  $command -i"
+  echo -e "  $command -n database -d /tmp/oracle\n"
 }
 
 info () {
- echo -e "...directory=$directory"
- echo -e "...name=$name\n"
+  echo -e "\nConfiguration"
+  echo -e "...directory=$directory"
+  echo -e "...name=$name"
+  echo -e "...port=$port"
 }
+
+leave () {
+  echo -e "\n...Exit\n"
+  exit 1
+}
+
 
 
 while getopts "hin:b:f:t:" opt; do
   case $opt in
+    d)
+      directory=$OPTARG
+      ;;
     n)
       name=$OPTARG
       ;;
@@ -49,7 +58,7 @@ done
 
 if [ "$help" == "true" ]; then
   command_help
-  exit 1
+  leave
 fi
 
 # ===========================================================
@@ -124,24 +133,23 @@ fi
 
 if [ "$help" == "true" ]; then
   command_help
-  exit 1
+  leave
 fi
 
 info
 
+# leave
 
-exit 1
+rm -rf $directory
+mkdir -p $directory/oradata
+mkdir -p $directory/tablespace
+chmod -R 777 $directory
 
-
-
-rm -rf /opt/oracle
-mkdir -p /opt/oracle/oradata
-mkdir -p /opt/oracle/tablespace
-chmod -R 777 /opt/oracle
-
-docker run --name sentineldb --hostname sentineldb \
-  -p 1521:1521 \
-  -e ORACLE_PWD=axway \
-  -v /opt/oracle/oradata:/opt/oracle/oradata \
-  -v /opt/oracle/tablespace:/opt/oracle/tablespace \
+docker run --name $name --hostname $name \
+  -p $port:1521 \
+  -e ORACLE_PWD=$password \
+  -v $directory/oradata:/opt/oracle/oradata \
+  -v $directory/tablespace:/opt/oracle/tablespace \
   -dit container-registry.oracle.com/database/free:latest-lite
+
+leave
