@@ -16,7 +16,8 @@ echo -e "\n...Initializing\n"
 command_help () {
   info
   echo -e "\nUsage: $command [-i] [-h] [-n <name>] [-d <directory>]"
-  echo -e " -i interactive mode"
+  echo -e " -m menu mode"
+  echo -e " -i image name"
   echo -e " -d directory"
   echo -e " -n container name"
   echo -e " -h optional display this helpful message"
@@ -26,11 +27,11 @@ command_help () {
 }
 
 info () {
-  echo -e "\nConfiguration"
+  echo -e "\nCurrent configuration"
   echo -e "...directory=$directory"
   echo -e "...name=$name"
   echo -e "...port=$port"
-  echo -e "\n"
+  echo -e "...image=$image"
 }
 
 leave () {
@@ -44,8 +45,7 @@ leave () {
 }
 
 
-
-while getopts "hin:d:p:" opt; do
+while getopts "mhin:d:p:" opt; do
   case $opt in
     d)
       directory=$OPTARG
@@ -56,8 +56,11 @@ while getopts "hin:d:p:" opt; do
     n)
       name=$OPTARG
       ;;
-    i)
+    m)
       interactive=true
+      ;;
+    i)
+      image=$OPTARG
       ;;
     h)
       help=true
