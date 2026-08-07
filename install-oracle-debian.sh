@@ -14,6 +14,7 @@ port=1521
 echo -e "\n...Initializing\n"
 
 command_help () {
+  info
   echo -e "\nUsage: $command [-i] [-h] [-n <name>] [-d <directory>]"
   echo -e " -i interactive mode"
   echo -e " -d directory"
