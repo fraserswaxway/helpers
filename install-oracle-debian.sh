@@ -1,6 +1,7 @@
 #!/bin/bash
 # curl -L https://raw.githubusercontent.com/fraserswaxway/helpers/refs/heads/main/install-oracle-debian.sh | bash
 # curl -L https://raw.githubusercontent.com/fraserswaxway/helpers/refs/heads/main/install-oracle-debian.sh | bash -s -- -h
+# bash <(curl -L https://raw.githubusercontent.com/fraserswaxway/helpers/refs/heads/main/install-oracle-debian.sh) -m
 
 image=container-registry.oracle.com/database/free:latest-lite
 command=$0
@@ -80,14 +81,18 @@ response=help
 while $interactive
 do
   info
-  echo "=====> Menu: "
+  echo -e "\n=====> Menu: "
   echo " n set name"
   echo " p set port"
   echo " d set directory"
   echo " r resume"
+  echo " q|x|b exit"
   read -p "Selection: " response
 
   case ${response:0:1} in
+    x|q|b)
+	  leave 0
+      ;;
     r)
 	  break
       ;;
