@@ -89,6 +89,7 @@ do
   info
   echo -e "\n=====> Menu: "
   echo " n set name"
+  echo " p set operation"
   echo " p set port"
   echo " d set directory"
   echo " r resume"
@@ -121,7 +122,7 @@ do
       fi
       ;;
     o)
-      read -p "Operation [$operation]: " value
+      read -p "Operation [$operation] (create|remove): " value
       if [ ! -z "$value" ]; then
         operation=$value
       fi
