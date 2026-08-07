@@ -10,7 +10,7 @@ fi
 
 image=container-registry.oracle.com/database/free:latest-lite
 directory=~/oracle
-name=oracle
+name=free
 help=false
 interactive=false
 password=pzzwrd
@@ -37,7 +37,7 @@ command_help () {
 info () {
   echo -e "\n=====> Current configuration: "
   echo -e "...operation=$operation"
-  echo -e "...directory=$directory"
+  echo -e "...directory=$directory/$name"
   echo -e "...name=$name"
   echo -e "...port=$port"
   echo -e "...image=$image"
