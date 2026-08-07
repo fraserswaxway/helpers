@@ -2,6 +2,7 @@
 # curl -L https://raw.githubusercontent.com/fraserswaxway/helpers/refs/heads/main/install-oracle-debian.sh | bash
 # curl -L https://raw.githubusercontent.com/fraserswaxway/helpers/refs/heads/main/install-oracle-debian.sh | bash -s -- -h
 
+command=$0
 directory=/opt/oracle
 name=oracle
 help=false
