@@ -1,11 +1,36 @@
 #!/bin/bash
 
-# bash <(curl -L https://raw.githubusercontent.com/fraserswaxway/helpers/refs/heads/main/sentinel/install-sentinel-oracle-debian.sh)
+# bash <(curl -L https://raw.githubusercontent.com/fraserswaxway/helpers/refs/heads/main/axway-sentinel/install-sentinel-oracle-debian.sh)
+
+#podman login docker.repository.axway.com --username <service account> --password <service account secret>
+#podman pull docker.repository.axway.com/sentineleventrouter-docker-prod/3.0/eventrouter:3.0.20260302
+#podman tag docker.repository.axway.com/sentineleventrouter-docker-prod/3.0/eventrouter:3.0.20260302 $(hostname -f | tr '[:upper:]' '[:lower:]')/library/eventrouter:3.0.20260302
+#podman login --tls-verify=false $(hostname -f | tr '[:upper:]' '[:lower:]') --username admin --password Harbor12345
+#podman push --tls-verify=false $(hostname -f | tr '[:upper:]' '[:lower:]')/library/eventrouter:3.0.20260302
+
+
+#https://dl8qxvt9zaqmi.cloudfront.net/filestore/da/dad999cc3443fb02ed586c9dfd02e34c98126dda?response-content-type=application%2Fzip&response-content-disposition=attachment%3Bfilename%3D%22Sentinel_4.2.0_Install_linux-x86-64_BN18540.zip%22&x-jf-traceId=d8844a897cb671088941643ba918ca17&X-Artifactory-repositoryKey=sentinel-generic-prod-ptx&X-Artifactory-projectKey=default&X-Artifactory-artifactPath=4.2.0%2FSentinel_4.2.0_Install_linux-x86-64_BN18540.zip&X-Artifactory-username=repositoryproduser%40axway.int&X-Artifactory-repoType=local&X-Artifactory-packageType=generic&X-Artifactory-originRepositoryKey=sentinel-generic-prod&X-Artifactory-originProjectKey=default&X-Artifactory-originRepoType=virtual&X-Artifactory-originPackageType=generic&Expires=1786197718&Signature=fWcovy9L0jWk0ZG741u1G4EF-~2pneAntG9dKi7HXU~XdHFnTqlac7Anh093jWM~Rg1rWZ3PcfpYk6PhEDXRxg-aEepurXZc-a2a3wLpl4r5n~KqmW8kQa3EpsKvsoHi-PAPA1nhRhdPs7~vCUSk6NZawH7rU3YuAD0bdJW~auXyaaZoO4l9RzW-mDtS-WoBnDX6rafTP0aiFyKReFtqq~zJImsJaGsvd-gUPUn58zlIwQzf4i3ucGonVo5~-I3mzx0a0YWINGjiK615SAr5fqCtpB~w3E6tEScPqtBhmjNCH0jv~Ig6vuNSO5Fu0rkVzNkR9-~X8fBUaiD-tvlskQ__&Key-Pair-Id=APKAJ6NHFWMVU3M6DPBA
+
+# registry
+
+# You can download the chart from Artifactory and from Webliv:Artifactory URL:  https://artifactory-ptx.ecd.axway.int:443/artifactory/sentinel-helm-release-ptx/Sentinel_HelmChart_linux-x86-64_4.2.0_SP37.tgz
+#Webliv : Webliv
+
+#docker login docker.repository.axway.com --username <client_id> --password <client_secret>
+#docker pull docker.repository.axway.com/sentinel-docker-prod/4.2.0/sentinel:4.2.0-SP38
+
+#read -s -p "Enter password: " my_var
 
 if [ "$EUID" -e 0 ]; then
   echo -e "\n\nPlease NOT run as root\n"
   exit 1
 fi
+
+# path
+# license
+# database
+# sed
+# setup.sh –s <the absolute path to the installer Silent File>
 
 exit 0
 
