@@ -52,7 +52,27 @@ ln -s certificate.key key.pem
 ln -s certificate.crt certificate.pem
 chmod a+r *
 # ==================
+#openssl req -x509 -newkey rsa:512 -sha256 -days 3650 -nodes -keyout sentinel.key -out sentinel.crt -config sentinel.conf
+#openssl pkcs12 -export -in sentinel.crt -inkey sentinel.key -out sentinel.p12 -name sl2csocust3812.pcloud.axway.int
+/opt/monitoring/Java/linux-x86/jre17.00.16_64/bin/keytool -importkeystore -srckeystore certificate.p12 -srcstoretype pkcs12 -destkeystore sentinel.jks -alias sentinel
+# changeit
+# ==================
+docker run --name javatemp --rm -it -v /tmp:/tmp/stuff eclipse-temurin:25 openssl
+# ==================
+openssl s_client -connect example.com:443 -servername example.com </dev/null 2>/dev/null | openssl x509 -outform PEM > certificate.pem
+openssl s_client -connect integrator-8596432-admin.okta.com:443 -servername integrator-8596432-admin.okta.com </dev/null 2>/dev/null | openssl x509 -outform PEM > okta.pem
+openssl x509 -in okta.pem -text -noout
+# ==================
 
+/opt/monitoring/Java/linux-x86/jre17.00.16_64/bin/keytool -importcert -alias sentinel -file certificate.crt -keystore truststore.jks -storepass changeit -keypass changeit -noprompt
+/opt/monitoring/Java/linux-x86/jre17.00.16_64/bin/keytool -importcert -alias okta -file okta.pem -keystore truststore.jks -storepass changeit -keypass changeit -noprompt
+
+  a. cd /opt/axway/certs
+  b. /opt/monitoring/Java/linux-x86/jre17.00.16_64/bin/keytool -importcert -alias sentinel -file certificate.crt -keystore truststore.jks
+       - .  Whenever prompted for a password use changeme
+  c. /opt/monitoring/Java/linux-x86/jre17.00.16_64/bin/keytool -importcert -alias keycloak -file okta.crt -keystore truststore.jks
+       - .  Whenever prompted for a password use changeme
+# ==================
 
 
 command_help () {
