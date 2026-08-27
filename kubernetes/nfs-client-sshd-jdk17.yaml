@@ -1,0 +1,85 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nfs-client-sshd-authorized-keys
+data:
+  authorized_keys: |
+    # Replace this comment with one or more SSH public keys before applying.
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nfs-client-sshd-jdk17
+  labels:
+    app: nfs-client-sshd-jdk17
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nfs-client-sshd-jdk17
+  template:
+    metadata:
+      labels:
+        app: nfs-client-sshd-jdk17
+    spec:
+      containers:
+        - name: tools
+          image: eclipse-temurin:17-jdk-jammy
+          command:
+            - /bin/bash
+            - -ec
+            - |
+              export DEBIAN_FRONTEND=noninteractive
+              apt-get update
+              apt-get install --yes --no-install-recommends nfs-common openssh-server curl iproute2 net-tools iputils-ping dnsutils
+              echo starting ...
+              apt-get install -y ca-certificates curl gnupg
+              mkdir -p -m 755 /etc/apt/keyrings
+              curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.35/deb/Release.key \
+                | gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+              chmod 644 /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+              echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.35/deb/ /' \
+                | tee /etc/apt/sources.list.d/kubernetes.list
+              chmod 644 /etc/apt/sources.list.d/kubernetes.list
+              apt-get update -y
+              apt-get install -y kubectl
+              kubectl version --client
+              echo moving on...
+              rm -rf /var/lib/apt/lists/*
+              mkdir -p /run/sshd /root/.ssh
+              chmod 700 /root/.ssh
+              cp /authorized-keys/authorized_keys /root/.ssh/authorized_keys
+              chmod 600 /root/.ssh/authorized_keys
+              exec /usr/sbin/sshd -D -e
+          ports:
+            - name: ssh
+              containerPort: 22
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              add:
+                - SYS_ADMIN
+          volumeMounts:
+            - name: authorized-keys
+              mountPath: /authorized-keys
+              readOnly: true
+      volumes:
+        - name: authorized-keys
+          configMap:
+            name: nfs-client-sshd-authorized-keys
+            defaultMode: 0444
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nfs-client-sshd-jdk17
+  labels:
+    app: nfs-client-sshd-jdk17
+spec:
+  type: ClusterIP
+  selector:
+    app: nfs-client-sshd-jdk17
+  ports:
+    - name: ssh
+      port: 22
+      targetPort: ssh
