@@ -5,26 +5,26 @@ Epic -> Story -> Sub-task
 
 python3 create-jira-ticket.py \
  Epic \
- --url "https://jira.axway.com" \
- --email "sfraser@axway.com" \
+ --url "https://jira.company.com" \
+ --email "sfraser@company.com" \
  --token "NTQ2...MU9tvT" \
  --project "WFSP" \
  --component "Sentinel" \
  --summary "SENT[Epic]: something for sentinel over 2 weeks" \
  --name "SENT[Epic]: something for sentinel over 2 weeks" \
- --assignee "sfraser@axway.com" \
+ --assignee "sfraser@company.com" \
  --dry-run
 
 python3 <(curl -L https://raw.githubusercontent.com/fraserswaxway/helpers/refs/heads/main/python/create-jira-ticket.py) \
  Epic \
- --url "https://jira.axway.com" \
- --email "sfraser@axway.com" \
+ --url "https://jira.company.com" \
+ --email "sfraser@company.com" \
  --token "NTQ2...MU9tvT" \
  --project "WFSP" \
  --component "Sentinel" \
  --summary "SENT[Epic]: something for sentinel over 2 weeks" \
  --name "SENT[Epic]: something for sentinel over 2 weeks" \
- --assignee "sfraser@axway.com" \
+ --assignee "sfraser@company.com" \
  --debug
 """
 
@@ -150,9 +150,9 @@ def main():
 
     parent_parser = argparse.ArgumentParser(add_help=False)
     parent_parser.add_argument("--debug", required=False, action='store_true', help="provide information on commands being executed")
-    parent_parser.add_argument("--url", required=True, help="jira site such as https://jira.axway.com")
+    parent_parser.add_argument("--url", required=True, help="jira site such as https://jira.company.com")
     parent_parser.add_argument("--token", required=True, help="personal access token such as NTQ2...MU9tvT")
-    parent_parser.add_argument("--email", required=True, help="email used by Jira such as someone@axway.com")
+    parent_parser.add_argument("--email", required=True, help="email used by Jira such as someone@company.com")
     parent_parser.add_argument("--project", required=True, help="project key such as WFSP")
     parent_parser.add_argument("--summary", required=True, help="summary")
     #parent_parser.add_argument("--description", required=True, help="description")
