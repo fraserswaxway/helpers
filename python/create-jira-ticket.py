@@ -1,4 +1,4 @@
-#python3 <(curl -L https://raw.githubusercontent.com/fraserswaxway/helpers/refs/heads/main/install-oracle-debian.sh) -n sentinel -o create -d /opt/oracle -p 11521 -c changeit
+#python3 <(curl -L https://raw.githubusercontent.com/fraserswaxway/helpers/refs/heads/main/python/create-jira-ticket.sh) -h -n sentinel -o create -d /opt/oracle -p 11521 -c changeit
 #!/usr/bin/env python3
 
 """
