@@ -5,7 +5,6 @@
 """
 Epic -> Story -> Sub-task
 
-JIRA_PAT=NTQ2MDQxMzQ3NTkxOg5QPJc8RdjzoHIVTIvvvsMU9tvT JIRA_EMAIL=sfraser@axway.com python3 \
  create_jira_issue.py \
  --url https://jira.axway.com \
  --project "WFSP" \
