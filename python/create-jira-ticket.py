@@ -14,6 +14,18 @@ python3 create-jira-ticket.py \
  --name "SENT[Epic]: something for sentinel over 2 weeks" \
  --assignee "sfraser@axway.com" \
  --dry-run
+
+python3 <(curl -L https://raw.githubusercontent.com/fraserswaxway/helpers/refs/heads/main/python/create-jira-ticket.py) \
+ Epic \
+ --url "https://jira.axway.com" \
+ --email "sfraser@axway.com" \
+ --token "NTQ2...MU9tvT" \
+ --project "WFSP" \
+ --component "Sentinel" \
+ --summary "SENT[Epic]: something for sentinel over 2 weeks" \
+ --name "SENT[Epic]: something for sentinel over 2 weeks" \
+ --assignee "sfraser@axway.com" \
+ --debug
 """
 
 import argparse
@@ -41,7 +53,6 @@ class Jira:
         if 'params' in additionalArguments:
             print("params: " + json.dumps(additionalArguments['params'], indent=2))
         if 'data' in additionalArguments:
-            print("data: " + json.dumps(additionalArguments['data'], indent=2))
             if isinstance(additionalArguments['data'], str):
                 dict = json.loads(additionalArguments['data'])
                 print("data: " + json.dumps(dict, indent=2))
