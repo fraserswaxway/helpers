@@ -1,38 +1,7 @@
-#python3 <(curl -L https://raw.githubusercontent.com/fraserswaxway/helpers/refs/heads/main/python/create-jira-ticket.py) -h
-
-"""
-Epic -> Story -> Sub-task
-
-python3 create-jira-ticket.py \
- Epic \
- --url "https://jira.company.com" \
- --email "sfraser@company.com" \
- --token "NTQ2...MU9tvT" \
- --project "WFSP" \
- --component "Sentinel" \
- --summary "SENT[Epic]: something for sentinel over 2 weeks" \
- --name "SENT[Epic]: something for sentinel over 2 weeks" \
- --assignee "sfraser@company.com" \
- --dry-run
-
-python3 <(curl -L https://raw.githubusercontent.com/fraserswaxway/helpers/refs/heads/main/python/create-jira-ticket.py) \
- Epic \
- --url "https://jira.company.com" \
- --email "sfraser@company.com" \
- --token "NTQ2...MU9tvT" \
- --project "WFSP" \
- --component "Sentinel" \
- --summary "SENT[Epic]: something for sentinel over 2 weeks" \
- --name "SENT[Epic]: something for sentinel over 2 weeks" \
- --assignee "sfraser@company.com" \
- --debug
-"""
-
 import argparse
 import json
 import sys
 import requests
-
 
 class Jira:
     def __init__(self, base_url: str, token: str, email: str, debug: bool = False):
@@ -99,6 +68,15 @@ class Jira:
             if "component".casefold() in f.get("name").casefold():
                 return f["id"]
         return None
+
+    def points_field(self):
+        for f in self._CallHTTP("GET", "/rest/api/2/field"):
+            custom = (f.get("schema") or {}).get("custom", "")
+            if "Story Points".casefold() == f.get("name").casefold():
+                return f["id"]
+        return None
+
+
 
     def epic_name_field(self):
         for f in self._CallHTTP("GET", "/rest/api/2/field"):
@@ -180,22 +158,12 @@ def main():
         help='Story points'
     )
     story_parser.add_argument("--epic", required=True, help="Epic issue key for Story, e.g. INT-4982")
-
-    # epic name .. not description
+    task_parser.add_argument("--story", required=True, help="Story identifier")
 
     args = parser.parse_args()
 
     jira = Jira(args.url,args.token,args.email,args.debug)
     jira.detect()
-
-#    jira.detect(args.deployment)
-
-    # Epic has nothing
-    # Story has an epic
-    # Sub-task as parent
-
-    # keep track of type for the rest api
-    # keep track of epic or parent
 
     fields = {
         "project": {"key": args.project},
@@ -204,24 +172,20 @@ def main():
         "assignee": jira.find_user(args.assignee),
         jira.component_field(): [{"name": args.component}],
     }
-    # epic name and not description
-    # "description": adf(args.description) if jira.cloud else args.description,
 
-    # --- link to the epic ---
-    epic_field = jira.epic_link_field()
-    #if epic_field:
-    #    fields[epic_field] = args.epic
-
-# classification .. Custom Project
     if args.type == "Epic":
         fields[jira.epic_name_field()] = args.name
         fields[jira.epic_classification_field()] = {"value": "Custom Project"}
 
+    if args.type == "Story":
+        fields[jira.epic_link_field()] = args.epic
+        fields[jira.points_field()] = float(args.story_points)
+
+    if args.type == "Sub-task":
+        fields["parent"] = {"id": args.story}
+
     if args.dry_run:
         jira._showInformation("POST",jira.api+"/issue",data=fields)
-        # return self._CallHTTP("POST", f"{self.api}/issue", data=json.dumps({"fields": fields}))
-        # print("POST " + args.url + jira.api)
-        # print(json.dumps({"fields": fields}, indent=2))
         return
 
     created = jira.create_issue(fields)
