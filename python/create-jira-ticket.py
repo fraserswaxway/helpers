@@ -176,11 +176,10 @@ def main():
     story_parser.add_argument(
         '--story-points',
         required=True,
-        choices=[1, 2, 3, 5, 8, 13],
+        choices=["1", "2", "3", "5", "8", "13"],
         help='Story points'
     )
-
-    story_parser.add_argument("--epic", required=False, help="Epic issue key for Story, e.g. INT-4982")
+    story_parser.add_argument("--epic", required=True, help="Epic issue key for Story, e.g. INT-4982")
 
     # epic name .. not description
 
@@ -226,6 +225,7 @@ def main():
         return
 
     created = jira.create_issue(fields)
+    # key can be used as parent later
     key = created["key"]
     print(f"Created {key} of type {args.type} see {jira.base}/browse/{key}")
 
