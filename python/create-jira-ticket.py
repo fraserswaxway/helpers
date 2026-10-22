@@ -111,6 +111,10 @@ class Jira:
         #return self._CallHTTP("POST", f"{self.api}/issue", data=json.dumps({"fields": fields}))
         #data={"fields": fields}
 
+    def delete_issue(self, fields):
+        return self._CallHTTP("DELETE", f"{self.api}/issue", data=json.dumps({"fields": fields}))
+
+
 def adf(text):
     """Plain text -> Atlassian Document Format (required by API v3 for description)."""
     paragraphs = [p for p in text.split("\n\n")] if text else []
