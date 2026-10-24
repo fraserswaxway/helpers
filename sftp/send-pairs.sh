@@ -27,27 +27,47 @@ do
     sleep $(echo $(( RANDOM % 3 + 1 )))
 done
 
+#while IFS=' ' read -r fn result
+#do
+    # echo "file is $fn with a result of $result"
+#    if [ $result == "SUCCESS" ]; then
+#      touch $fn.success
+#      echo -e "cd incoming\nput $fn.success\nquit" | sshpass -p "user1" sftp -o StrictHostKeyChecking=no -P 8022 user1@192.168.1.236 > /dev/null 2>&1
+#    else
+#      touch $fn.issue
+#      echo -e "cd incoming\nput $fn.issue\nquit" | sshpass -p "user1" sftp -o StrictHostKeyChecking=no -P 8022 user1@192.168.1.236 > /dev/null 2>&1
+#    fi
+#    rm -f $fn.*
+#done < ack.txt
+
+#while IFS=' ' read -r fn
+#do
+#    read -u 3 -p "...Press [Enter] to resolve $fn"
+#    touch $fn.success
+#    echo -e "cd incoming\nput $fn.success\nquit" | sshpass -p "user1" sftp -o StrictHostKeyChecking=no -P 8022 user1@192.168.1.236 > /dev/null 2>&1
+#    # | grep -vi "password"
+#    rm -f $fn.*
+#done 3<&0 < nack.txt
+
+
 while IFS=' ' read -r fn result
 do
-    # echo "file is $fn with a result of $result"
+    read -u 3 -p "...Press [Enter] to process $fn as $result"
+    # lock processing.txt
     if [ $result == "SUCCESS" ]; then
-      touch $fn.success
-      echo -e "cd incoming\nput $fn.success\nquit" | sshpass -p "user1" sftp -o StrictHostKeyChecking=no -P 8022 user1@192.168.1.236 > /dev/null 2>&1
+      echo -e "cd lock\nrm processing.txt\nquit" | sshpass -p "user1" sftp -o StrictHostKeyChecking=no -P 8022 user1@192.168.1.236 > /dev/null 2>&1
     else
-      touch $fn.issue
-      echo -e "cd incoming\nput $fn.issue\nquit" | sshpass -p "user1" sftp -o StrictHostKeyChecking=no -P 8022 user1@192.168.1.236 > /dev/null 2>&1
+      touch $fn.txt
+      echo -e "cd issue\nput $fn.txt\nquit" | sshpass -p "user1" sftp -o StrictHostKeyChecking=no -P 8022 user1@192.168.1.236 > /dev/null 2>&1
+      read -u 3 -p "...Press [Enter] to resolve $fn as $result"
+      echo -e "cd issue\nrm $fn.txt\nquit" | sshpass -p "user1" sftp -o StrictHostKeyChecking=no -P 8022 user1@192.168.1.236 > /dev/null 2>&1
+      echo -e "cd lock\nrm processing.txt\nquit" | sshpass -p "user1" sftp -o StrictHostKeyChecking=no -P 8022 user1@192.168.1.236 > /dev/null 2>&1
     fi
-    rm -f $fn.*
-done < ack.txt
 
-while IFS=' ' read -r fn
-do
-    read -u 3 -p "...Press [Enter] to resolve $fn"
-    touch $fn.success
-    echo -e "cd incoming\nput $fn.success\nquit" | sshpass -p "user1" sftp -o StrictHostKeyChecking=no -P 8022 user1@192.168.1.236 > /dev/null 2>&1
+
     # | grep -vi "password"
     rm -f $fn.*
-done 3<&0 < nack.txt
+done 3<&0 < ack.txt
 
 read -p "...Press [Enter] to proceed with cleanup..."
 
