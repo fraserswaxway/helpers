@@ -1,78 +1,190 @@
 #!/usr/bin/env bash
+
+# rm -rf
+# bash <(curl -L https://raw.githubusercontent.com/fraserswaxway/helpers/refs/heads/main/sftp/send-pairs.sh)
+
+help=false
+user=
+password=
+host=
+port=
+num=
+backend=
+
+findNext () {
+  count=1
+  while [ $count -le 5 ]
+  do
+    fnd=$(echo -e "cd backend\nls -1\nquit" | sshpass -p "$password" sftp -o StrictHostKeyChecking=no -P $port $user@$host 2>&1 | grep pdf)
+    if ! [ -z "$fnd" ]; then
+      backend=$(echo $fnd | cut -f1 -d'.')
+      break
+    fi
+
+    sleep 2
+    ((count++))
+  done
+}
+
+
+info () {
+  echo -e "\n...Configuration: "
+  echo "user=$user"
+  echo "password=$password"
+  echo "host=$host"
+  echo "port=$port"
+  echo "num=$num"
+  echo
+}
+
+command_help () {
+  echo -e "Usage: -u <user> -c <password> -h <host> -p <port> -n <num>"
+  echo -e "\nExamples:"
+  echo    "  -u sftp -c sftp -h 192.168.1.236 -p 8022 -n 5"
+}
+
+echo -e "\n...Initializing\n"
+
+command_help
+shopt -s nocasematch
+
+clean () {
+  echo -e "cd incoming\nrm $dt*\nquit" | sshpass -p "$password" sftp -o StrictHostKeyChecking=no -P $port $user@$host 2>&1 > /dev/null 2>&1
+  echo -e "cd issue\nrm *\nquit" | sshpass -p "$password" sftp -o StrictHostKeyChecking=no -P $port $user@$host 2>&1 > /dev/null 2>&1
+  echo -e "cd backend\nrm *\nquit" | sshpass -p "$password" sftp -o StrictHostKeyChecking=no -P $port $user@$host 2>&1 > /dev/null 2>&1
+  echo -e "cd lock\nrm *\nquit" | sshpass -p "$password" sftp -o StrictHostKeyChecking=no -P $port $user@$host 2>&1 > /dev/null 2>&1
+}
+
+leave () {
+  local result=$1
+  clean
+  if [ -z "$result" ]; then
+    echo -e "\n...[E] Missing result value for leave"
+  fi
+
+  echo -e "\n...Exit\n"
+  exit $result
+}
+
+while getopts "u:c:h:p:n:" opt; do
+  case $opt in
+    u)
+      user=$OPTARG
+      ;;
+    c)
+      password=$OPTARG
+      ;;
+    h)
+      host=$OPTARG
+      ;;
+    p)
+      port=$OPTARG
+      ;;
+    n)
+      num=$OPTARG
+      ;;
+    \?)
+      help=true
+      ;;
+  esac
+done
+
+info
+
+if [ -z "$user" ]; then
+  echo -e "...[E] Invalid user specified"
+  help=true
+fi
+if [ -z "$password" ]; then
+  echo -e "...[E] Invalid password specified"
+  help=true
+fi
+if [ -z "$host" ]; then
+  echo -e "...[E] Invalid host specified"
+  help=true
+fi
+if [ -z "$port" ]; then
+  echo -e "...[E] Invalid port specified"
+  help=true
+fi
+if ! [[ "$num" =~ ^-?[0-9]+$ ]]; then
+  echo -e "...[E] Invalid number specified"
+  help=true
+fi
+
+if [ "$help" == "true" ]; then
+  leave 1
+fi
+
+clean
 dt=$( echo $(($(date +%s%N) / 1000000)) )
-cnt=$(echo $(( RANDOM % 5 + 3 )))
 
-rm -f ack.txt nack.txt
-touch nack.txt
-
-echo ...processing $dt $cnt
-for ((i=1; i<=cnt; i++))
+echo ...Simulating uploads
+for ((i=1; i<=$num; i++))
 do
     theFile="${dt}_${i}"
-    result="SUCCESS"
-    if [ $((RANDOM % 5)) -eq 0 ]; then
-      result="ISSUE"
-      echo "$theFile" >> nack.txt
-    fi
-    echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?><important><result>$result</result></important>" > $theFile.xml
-    # echo "$theFile $result" | tee -a ack.txt
-    echo "$theFile $result" >> ack.txt
+    echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?><important>sample data</important>" > $theFile.xml
     mv $theFile.xml $theFile.txt
     pandoc $theFile.txt -o $theFile.pdf
     mv $theFile.txt $theFile.xml
-    # ls -ltr $theFile.*
-    # sshpass -e sftp -P "$PORT" -o BatchMode=no -o StrictHostKeyChecking=accept-new "$USER@$HOST" <<EOF
-    echo -e "cd incoming\nput $theFile.xml\nput $theFile.pdf\nquit" | sshpass -p "user1" sftp -o BatchMode=no -o StrictHostKeyChecking=accept-new -P 8022 user1@192.168.1.236 > /dev/null 2>&1
+    echo ...$dt $i
+    echo -e "cd incoming\nput $theFile.xml\nput $theFile.pdf\nquit" | sshpass -p "$password" sftp -o BatchMode=no -o StrictHostKeyChecking=accept-new -P $port $user@$host > /dev/null 2>&1
     rm -f $theFile.*
-    sleep $(echo $(( RANDOM % 3 + 1 )))
+    sleep $(echo $(( RANDOM % 3 + 2 )))
 done
 
-#while IFS=' ' read -r fn result
-#do
-    # echo "file is $fn with a result of $result"
-#    if [ $result == "SUCCESS" ]; then
-#      touch $fn.success
-#      echo -e "cd incoming\nput $fn.success\nquit" | sshpass -p "user1" sftp -o StrictHostKeyChecking=no -P 8022 user1@192.168.1.236 > /dev/null 2>&1
-#    else
-#      touch $fn.issue
-#      echo -e "cd incoming\nput $fn.issue\nquit" | sshpass -p "user1" sftp -o StrictHostKeyChecking=no -P 8022 user1@192.168.1.236 > /dev/null 2>&1
-#    fi
-#    rm -f $fn.*
-#done < ack.txt
-
-#while IFS=' ' read -r fn
-#do
-#    read -u 3 -p "...Press [Enter] to resolve $fn"
-#    touch $fn.success
-#    echo -e "cd incoming\nput $fn.success\nquit" | sshpass -p "user1" sftp -o StrictHostKeyChecking=no -P 8022 user1@192.168.1.236 > /dev/null 2>&1
-#    # | grep -vi "password"
-#    rm -f $fn.*
-#done 3<&0 < nack.txt
-
-
-while IFS=' ' read -r fn result
+echo
+echo ...Simulating backend process
+for ((i=1; i<=$num; i++))
 do
-    read -u 3 -p "...Press [Enter] to process $fn as $result"
-    # lock processing.txt
-    if [ $result == "SUCCESS" ]; then
-      echo -e "cd lock\nrm processing.txt\nquit" | sshpass -p "user1" sftp -o StrictHostKeyChecking=no -P 8022 user1@192.168.1.236 > /dev/null 2>&1
+  theFile="${dt}_${i}"
+  # wait for files in backend folder
+  doloop=1
+  while [ $doloop == 1 ]
+  do
+    sleep 1
+    findNext
+    if ! [ -z "$backend" ]; then
+      doloop=0
     else
-      touch $fn.txt
-      echo -e "cd issue\nput $fn.txt\nquit" | sshpass -p "user1" sftp -o StrictHostKeyChecking=no -P 8022 user1@192.168.1.236 > /dev/null 2>&1
-      read -u 3 -p "...Press [Enter] to resolve $fn as $result"
-      echo -e "cd issue\nrm $fn.txt\nquit" | sshpass -p "user1" sftp -o StrictHostKeyChecking=no -P 8022 user1@192.168.1.236 > /dev/null 2>&1
-      echo -e "cd lock\nrm processing.txt\nquit" | sshpass -p "user1" sftp -o StrictHostKeyChecking=no -P 8022 user1@192.168.1.236 > /dev/null 2>&1
+      read -p "   Files not received yet. Try again? " response
+      if [ ! -z "$response" ]; then
+        case ${response:0:1} in
+          n|x|q|f|0)
+            leave 1
+            ;;
+        esac
+      fi
     fi
+  done
+  echo "  " received a file pair $backend
+  read -p "   simulate an issue? " response
+  if [ ! -z "$response" ]; then
+    case ${response:0:1} in
+      y|t|1)
+	      echo  Generating an issue
+	      echo "{\"file\": \"$theFile\",\"description\": \"there was an issue\"}" > $theFile.json
+        echo -e "cd issue\nput $theFile.json\nquit" | sshpass -p "$password" sftp -o BatchMode=no -o StrictHostKeyChecking=accept-new -P $port $user@$host > /dev/null 2>&1
+        rm -f $theFile.json
+        ;;
+    esac
+  fi
+  #Success
+  read -p "   Press [Enter] to complete this file pair" value
+  echo -e "cd backend\nrm *\nquit" | sshpass -p "$password" sftp -o StrictHostKeyChecking=no -P $port $user@$host 2>&1 > /dev/null 2>&1
+  echo -e "cd lock\nrm *\nquit" | sshpass -p "$password" sftp -o StrictHostKeyChecking=no -P $port $user@$host 2>&1 > /dev/null 2>&1
+  echo
 
+   # for each
+    #echo -e "cd backend\nls -1\nquit" | sshpass -p "$password" sftp -o StrictHostKeyChecking=no -P $port $user@$host 2>&1 | grep pdf
 
-    # | grep -vi "password"
-    rm -f $fn.*
-done 3<&0 < ack.txt
+    #read -p "Type any value to quit or [Enter] to continue" value
+    #if [ ! -z "$value" ]; then
+    #  break
+    #fi
+    sleep 1
+done
 
 read -p "...Press [Enter] to proceed with cleanup..."
+leave 0
 
-echo ...cleanup $dt $cnt
-echo -e "cd incoming\nrm $dt*\nquit" | sshpass -p "user1" sftp -o StrictHostKeyChecking=no -P 8022 user1@192.168.1.236 2>&1 > /dev/null 2>&1
-
-rm -f ack.txt nack.txt temp.txt
-echo ...done
