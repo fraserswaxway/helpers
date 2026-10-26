@@ -163,7 +163,7 @@ do
     case ${response:0:1} in
       y|t|1)
 	      echo  "   generating an issue"
-	      echo "{\"file\": \"$theFile\",\"description\": \"there was an issue\"}" > $theFile.json
+	      echo "{\"file\": \"$theFile\",\"description\": \"there was an issue with $theFile\"}" > $theFile.json
         echo -e "cd issue\nput $theFile.json\nquit" | sshpass -p "$password" sftp -o BatchMode=no -o StrictHostKeyChecking=accept-new -P $port $user@$host > /dev/null 2>&1
         rm -f $theFile.json
         ;;
