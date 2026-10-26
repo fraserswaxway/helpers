@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# bash <(curl -L https://raw.githubusercontent.com/fraserswaxway/helpers/refs/heads/main/sftp/send-pairs.sh) -u sftp -c sftp -h 192.168.1.236 -p 8022 -n 1
+# bash <(curl -L https://raw.githubusercontent.com/fraserswaxway/helpers/refs/heads/main/sftp/send-pairs.sh) -u sftp -c sftp -h 192.168.1.236 -p 8022 -n 5
 
 help=false
 user=
